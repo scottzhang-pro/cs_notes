@@ -11,7 +11,3 @@
 - Alice与银行可以使用对称密钥来对沟通的内容进行加密与解密了。
 
 ![](https://pic2.zhimg.com/80/v2-2689d8cc84a3e40211d1a01534dd9045_720w.jpg)
-
-# 数据库隔离级别与锁
-
-> [美团技术博客：Innodb中的事务隔离级别和锁的关系](https://tech.meituan.com/2014/08/20/innodb-lock.html)
