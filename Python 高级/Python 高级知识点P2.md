@@ -139,36 +139,188 @@ del c
 关于参数传输错误:
 
 ```python
-# int 值相加
-def add(a,b):
-    a+=b
+# 1. int 值相加
+def add(a, b):
+    a += b
     return a
-a=1
-b=2
-c=add(a,b)
+a = 1
+b = 2
+c=add(a, b)
 
-print(a,b,c)
+print(a, b, c)
 >>> 1 2 3
 
-# list 值相加
-def add(a,b):
-    a+=b
+# 2. list 值相加
+def add(a, b):
+    a += b
     return a
 a=[1]
 b=[2]
-c=add(a,b)
+# a，b 两个 list 传入的是引用
+# 实际上会将 a 修改掉
+c = add(a, b)
 
 print(a,b,c) # a 被改变
 >>> [1, 2] [2] [1, 2]
 
-# tuple 值相加
-def add(a,b):
-    a+=b
+# 3. tuple 值相加
+def add(a, b):
+    a += b
     return a
+
 a=(1)
 b=(2)
 c=add(a,b)
 
 print(a,b,c)
 >>> 1 2 3
+```
+
+
+# 元类编程
+
+## Property 动态属性
+
+你拿到一个之前写的类 User，其中初始化需要传入 name，birthday，现在对于获取 user 的 age 的方式有了变化，但是很多以前的代码都是通过 `obj.age` 的方式访问 age 的，你希望在不改变大量代码的情况下，能更新 age 的方法。一个办法是通过 python 的属性描述符，即为这个类定义一个 age 方法：
+
+```python
+@property
+def age(self):
+    return datetime.now().year - self.birthday.year
+
+```
+
+在使用方式上，和之前的使用方式是一样的：
+
+```python
+user = User('scott', 1995)
+user.age
+```
+
+不只是取值，设置值也是有相关的方法的：
+
+```pythyon
+@age.setter
+def age(self, value):
+    self.age = value
+```
+
+## getattr 和 getattribute
+
+这两个函数的完整名字是 `__getattr__` 和 `__getattribute__`,实际上就是之前介绍的魔法函数。
+
+第一个函数是，在查找不到一个属性的时候调用，就是说当你在访问一个类不存在的属性的时候，就会被调用。
+第二个函数是，则会接管所有对对象属性的访问：
+
+```python
+class User:
+    def __init__(self, name):
+        self.name = name
+
+    def __getattribute__(self, item):
+        return 'Disabled'
+
+user = User('scott')
+user.name
+```
+
+## 属性描述符和属性查找过程
+
+假设你想要写一个数据库 ORM 类（将数据库的表结构映射成一个类），在这个类的设计中，你想要控制一些属性的数据类型，比如对于名字只能是 str 类型，对于年龄只能是 int 类型。
+
+```python
+import numbers
+
+# 一个 int 类，实现了属性描述符协议，内部的值只能是 int
+class IntField:
+    def __get__(self, instance, owner):
+        return self.value
+
+    def __set__(self, instance, value):
+        if not isinstance(value, numbers.Integral):
+            raise ValueError("Must be Int value")
+        self.value = value
+
+    def __delete__(self, instance):
+        pass
+
+# 使用 int 类作为 age 的 user 类
+class User:
+    age = IntField()
+
+# 测试
+user = User()
+# all good
+user.age = '10'
+print(user.age)
+# get error
+user.age = 10
+print(user.age)
+```
+
+在 `IntField` 中，它实现了 get 和 set，称为数据描述符；如果只实现了 get，则为非数据属性描述符。他们的属性查找过程是不一样的。
+
+如果user是某个类的实例，使用 `user.age` （等于 `getattr(user,’age’)`），首先会调用`__getattribute__`, 如果在`__getattribute__`找不到属性就会抛出`AttributeError`。
+
+如果类定义了`__getattr__`方法，在抛出`AttributeError`的时候就会调用到`__getattr__`；而对于描述符`__get__`的调用，则是发生在`__getattribute__`内部的。
+
+举例来说 `user = User()`, 那么 user.age 顺序如下：
+
+1. 如果“age”是出现在User或其基类的`__dict__`中，且 age 是 data descriptor，那么调用其`__get__`方法
+2. 如果“age”出现在user(对象)的`__dict__`中， 那么直接返回 `obj.__dict__[‘age’]`
+3. 如果“age”出现在User(类)或其基类的`__dict__`中
+    - 如果age是non-data descriptor，那么调用其`__get__`方法
+    - 返回`__dict__[‘age’]`
+4. 如果User有`__getattr__`方法，调用`__getattr__`方法，否则
+5. 抛出AttributeError
+
+- 类的静态函数、类函数、普通函数、全局变量以及一些内置的属性都是放在类.__dict__里的
+- 对象.__dict__中存储了一些self.xxx的一些东西
+
+```python
+import numbers
+
+class IntField:
+    #数据描述符
+    def __get__(self, instance, owner):
+        return self.value
+    def __set__(self, instance, value):
+        if not isinstance(value, numbers.Integral):
+            raise ValueError("int value need")
+        if value < 0:
+            raise ValueError("positive value need")
+        self.value = value
+    def __delete__(self, instance):
+        pass
+
+class User:
+    age = IntField()
+
+
+if __name__ == "__main__":
+    user = User()
+    # user.age = 30           # 进入数据描述符的__set__
+    # setattr(user, 'age',18) # 进入数据描述符的__get__
+    # print(user.age)         # 进入数据描述符的__get__
+    user.__dict__["age"] = 18
+    print(user.__dict__["age"])
+
+    user.__dict__["age"] = 18
+    print(user.age)
+    >>> 'IntField' object has no attribute 'value'
+```
+
+```python
+class User:
+    age = 1
+
+if __name__ == "__main__":
+    user = User()
+    user.name = 30         # 保存在user对象的内存中
+    print(user.name)       # 从user对象的内存中去取
+    user.age = 30          # 保存在user对象的内存中, 不影响类的内存中的值
+    print(user.age)       # 进入数据描述符的__get__
+    user.__dict__["age"] = 18
+    print(user.__dict__["age"])
+    print (user.__dict__)
 ```
