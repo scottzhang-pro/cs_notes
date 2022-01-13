@@ -391,3 +391,181 @@ def create_class_by_type(name):
 if __name__ == '__main__':
     create_class_by_type('')
 ```
+
+
+
+
+
+
+## 元类编程实例 ORM
+
+ORM 即一个数据库中表与 python 中类的一个映射关系，下面的代码实现了一个简单的 ORM 类：
+
+
+```python
+import numbers
+
+
+class Field:
+    """
+    一个 IndField 和 CharField 的基类，用来在某些情况下方便
+    我们判断传入的对象是 Field 或者它的子类
+    """
+    pass
+
+
+class IntField(Field):
+    """表示 Int 类型值的类
+    """
+
+    def __init__(self, db_column, min_value=None, max_value=None):
+        """
+        初始化一个 IntField
+        :param db_column: pass
+        :param min_value: 最小值
+        :param max_value: 最大值
+        """
+        self._value = None
+        self.min_value = min_value
+        self.max_value = max_value
+        self.db_column = db_column
+        # 对值的大小与规定做检查
+        if min_value is not None:
+            if not isinstance(min_value, numbers.Integral):
+                raise ValueError('min_value must be int')
+            elif min_value < 0:
+                raise ValueError('min value must be positive int')
+
+        if max_value is not None:
+            if not isinstance(max_value, numbers.Integral):
+                raise ValueError('max_value must be int')
+            elif max_value < 0:
+                raise ValueError('max_value must be positive int')
+
+        if min_value is not None and max_value is not None:
+            if min_value > max_value:
+                raise ValueError("min value must be smaller then maxvalue")
+
+    def __get__(self, instance, owner):
+        return self._value
+
+    def __set___(self, instance, value):
+        if not isinstance(value, numbers.Integral):
+            raise ValueError('int value need')
+
+        if value < 0:
+            raise ValueError("positive value need")
+
+        if value < self.min_value or value > self.max_value:
+            raise ValueError("value must between min_value and max_value")
+
+        self._value = value
+
+
+class CharField(Field):
+    """表示字符类型的类
+    """
+
+    def __init__(self, db_column, max_length=None):
+        self._value = None
+        self.db_column = db_column
+        if max_length is None:
+            raise ValueError("You must specific max_length for CharField")
+        self.max_length = max_length
+
+    def __get__(self, instance, owner):
+        return self._value
+
+    def __set__(self, instance, value):
+        if not isinstance(value, str):
+            raise ValueError("str value need")
+
+        if len(value) > self.max_length:
+            raise ValueError("value len > max_length")
+        self._value = value
+
+
+class ModelMetaClass(type):
+    def __new__(cls, name, bases, attrs, **kwargs):
+        """New 需要返回一个新的对象，解释下这里的参数：
+           本来的参数是这么写的：def __new__(cls, *args, **kwargs):
+           但因为我们知道 *args 会是什么参数，所以 *args 可以拆包成：
+           name, bases, attrs
+        """
+        # name 是类的名字，所以这里可以知道是子类还是父类来到了 MetaClass
+        # 如果是父类 BaseModel ，因为它没有 name, age 等属性描述符，直接
+        # 让 type 去处理
+        if name == 'BaseModel':
+            return super().__new__(cls, name, bases, attrs, **kwargs)
+
+        # 如果是子类 User，处理进来的参数
+        fields = {}
+        for key, value in attrs.items():
+            if isinstance(value, Field):
+                fields[key] = value
+
+        # 比如子类的话应该有 Meta 类
+        # 这里从 Meta 类中提取、注入信息
+        attrs_meta = attrs.get("Meta", None)
+        _meta = {}
+        db_table = name.lower()
+
+        if attrs_meta is not None:
+            table = getattr(attrs_meta, "db_table", None)
+            if table is not None:
+                db_table = table
+        _meta["db_table"] = db_table
+
+        attrs["_meta"] = _meta
+        attrs["fields"] = fields
+        del attrs["Meta"]
+
+        return super().__new__(cls, name, bases, attrs, **kwargs)
+
+
+class BaseModel(metaclass=ModelMetaClass):
+    """定义的一个 User 的父类，实现让使用者可以自定义初始化
+       以及实现了子类通用的 save 方法
+    """
+    def __init__(self, *args, **kwargs):
+        # 绑定属性到对象上，让使用者可以自定义初始化，如：
+        # 子类 User 可以这样用，User(name='scott')
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        return super().__init__()
+
+    def save(self):
+        """保存数据到数据库的方法
+        """
+        fields = []
+        values = []
+        for key, value in self.fields.items():
+            db_column = value.db_column
+            if db_column is None:
+                db_column = key.lower()
+            fields.append(db_column)
+            value = getattr(self, key)
+            values.append(str(value))
+
+        sql = "insert {db_table}({fields}) value({values})".format(db_table=self._meta["db_table"],
+                                                                   fields=",".join(fields), values=",".join(values))
+        return sql
+
+
+class User(BaseModel):
+    # name，age 分别是利用属性描述符实现的字段，内部会对该属性做类型、范围检查
+    name = CharField(db_column="name", max_length=10)
+    age = IntField(db_column="age", min_value=0, max_value=100)
+
+    # 单独的内部的类，定义关于表的信息
+    class Meta:
+        db_table = "user"
+
+
+if __name__ == "__main__":
+    user = User()
+    # 如果属性的类型不对，报错
+    user.name = "scott"
+    user.age = 26
+    print(user.save())
+```
