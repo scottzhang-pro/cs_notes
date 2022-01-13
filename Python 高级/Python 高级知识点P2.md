@@ -324,3 +324,70 @@ if __name__ == "__main__":
     print(user.__dict__["age"])
     print (user.__dict__)
 ```
+
+## 元类编程
+
+首先来了解 init 和 new 的区别。
+
+new 方法可以用来控制一个类的生成过程，init 则是在对象生成之后，对对象做一些操作。
+
+init 调用是在 new 方法之后，其参数是实例，new 方法的参数是类。
+
+如果 new 方法没有返回对象，则 init 方法不会调用。
+
+然后，我们说的元类编程，什么是元类？元类是创建类的类，我们看下面一个动态创建类的例子：
+
+
+```python
+def create_class_by_class(name):
+    """一个按需求定义类的例子
+    :param name:
+    :return:
+    """
+    if name == 'user':
+        class User:
+            def __str__(self):
+                return 'user'
+        return User
+
+    if name == 'company':
+        class Company:
+            def __str__(self):
+                return 'Company'
+        return Company
+
+
+def create_class_by_type(name):
+    """动态的创建类：
+    Python type(即元类)，里面可以创建类，关于 python
+    type 如何创建类，以及其中的构造方法的用法，可以参考我之前写的文章。
+    """
+    # type 中第一个是要创建的类的名字，第二个是它的父类，第三个是类的属性
+    # 这里没有给它设置父类，也没有属性
+    User = type("User", (), {})
+    user = User()
+    print(user)
+
+    # 加上一个 name 属性
+    User = type("User", (), {"name": "user"})
+    user = User()
+    print(user.name)
+
+    # 加方法
+    def say(self):
+        return "I am a func will bind to use"
+    User = type("User", (), {"name": "user", "say": say})
+    user = User()
+    user_say = user.say()
+    print(user_say)
+
+    # 继承其他类
+    class BaseClass:
+        def answer(self):
+            return "I am BaseClass"
+    User = type("User", (BaseClass, ), {"name": "user", "say": say})
+
+
+if __name__ == '__main__':
+    create_class_by_type('')
+```
