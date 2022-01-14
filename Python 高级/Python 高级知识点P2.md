@@ -547,8 +547,11 @@ class BaseModel(metaclass=ModelMetaClass):
             value = getattr(self, key)
             values.append(str(value))
 
-        sql = "insert {db_table}({fields}) value({values})".format(db_table=self._meta["db_table"],
-                                                                   fields=",".join(fields), values=",".join(values))
+        sql = "insert {db_table}({fields}) value({values})".format(
+            db_table=self._meta["db_table"],
+            fields=",".join(fields),
+            values=",".join(values)
+        )
         return sql
 
 
@@ -697,4 +700,65 @@ def foo():
 
 ![image.png](https://s2.loli.net/2022/01/14/wxmMjKIOFLk627a.png)
 
+下面的代码演示了如何控制生成器:
 
+```python
+import dis  # 分析已编译代码的详细信息
+
+def gen_func():
+    """A example generator function. """
+    yield 'Scott Zhang'
+    yield 'BasketBall'
+    yield 26
+    yield 'Shanghai'
+    yield 'No more!'
+
+# gen 是一个生成器对象，使用 dis 查看其字节码
+gen = gen_func()
+print(dis.dis(gen))
+"""
+5           0 LOAD_CONST               1 ('Scott Zhang')
+            2 YIELD_VALUE
+            4 POP_TOP
+
+6           6 LOAD_CONST               2 ('BasketBall')
+            8 YIELD_VALUE
+            10 POP_TOP
+
+7          12 LOAD_CONST               3 (26)
+           14 YIELD_VALUE
+           16 POP_TOP
+
+8          18 LOAD_CONST               4 ('Shanghai')
+           20 YIELD_VALUE
+           22 POP_TOP
+
+9          24 LOAD_CONST               5 ('No more!')
+           26 YIELD_VALUE
+           28 POP_TOP
+           30 LOAD_CONST               6 (None)
+           32 RETURN_VALUE
+None
+"""
+
+# 执行字节码时的位置
+print(gen.gi_frame.f_lasti)
+# 执行字节码是的变量
+print(gen.gi_frame.f_locals)
+# 注意：第一次执行的时候，分别为 -1，空字典
+
+print("---- Next Gen 1")
+next(gen)
+print(gen.gi_frame.f_lasti)
+print(gen.gi_frame.f_locals)
+
+print("---- Next Gen 2")
+next(gen)
+print(gen.gi_frame.f_lasti)
+print(gen.gi_frame.f_locals)
+
+print("---- Not finished")
+print("     Pass...")
+```
+
+如果我们拿到了 gen 对象，便可以控制它的运行。
