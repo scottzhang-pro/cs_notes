@@ -569,3 +569,132 @@ if __name__ == "__main__":
     user.age = 26
     print(user.save())
 ```
+
+# 迭代器与迭代协议
+
+将一个list转成迭代器：
+
+```python
+iter_rator = iter(a)
+```
+
+如果给一个类增加了 `__getitem__` 方法，则你可以对它使用 for 循环，这背后其实是使用了 `__iter__`，python 会自动创建一个 `__iter__` 实现它。
+
+> getitem 的作用是切片，不要混淆。
+
+你也可以自定义 `__iter__` 函数，但必须返一个 iteratle.
+
+也可以通过继承 Iterator 来支持可迭代，这时候可以通过 `__next__` 来定制取值。
+
+来看一个实现迭代器协议的例子：
+
+```python
+from collections.abc import Iterator
+
+class Company(object):
+    def __init__(self, employee_list):
+        self.employee = employee_list
+
+    # 可迭代对象中的__iter__返回迭代器
+    def __iter__(self):
+        return MyIterator(self.employee)
+
+class MyIterator(Iterator):
+    def __init__(self, employee_list):
+        self.iter_list = employee_list
+        self.index = 0 # 需要在内部维护一个取值位置
+
+    # 继承了Iterator可以不写该方法, 如果重写那么return self
+    # def __iter__(self):
+    #     return self
+
+    def __next__(self):
+        #真正返回迭代值的逻辑
+        try:
+            word = self.iter_list[self.index]
+        except IndexError:
+            raise StopIteration # 抛出的异常应该是StopIteration
+        self.index += 1
+        return word
+```
+
+# 生成器函数
+
+生成器可以返回*多次*值：
+
+```python
+# 函数
+def func():
+    return 1
+
+# 生成器
+def gen():
+    yield 1
+    yield 2
+    yield 3
+```
+
+如果你研究过斐波拉契数列的实现，有一种办法是使用滑动数组：
+
+```python
+def list_fib(index):
+    re_list = []
+    n, cur_val, next_val = 0, 0, 1
+    while n < index:
+        re_list.append(next_val)
+        cur_val, next_val = next_val, cur_val + next_val
+        n += 1
+    return re_list
+
+list_fib(10)
+```
+
+这种办法可以改造成生成器实现：
+
+```python
+def gen_fib(index):
+    n, cur_val, next_val = 0, 0, 1
+    while n < index:
+        # 为什么在这里 yield
+        yield next_val
+        pre_val, cur_val = cur_val, next_val
+        next_val = pre_val + cur_val
+
+for x in gen_fib(10):
+    print(x)
+```
+
+理解生成器的原理非常重要，在理解生成器原理之前，先看看 python 中函数的工作原理，假设定义了以下函数：
+
+```python
+# forbar.py
+
+def bar():
+    pass
+
+def foo():
+    bar()
+```
+
+当你用 `python.exe` 调用 `forbar.py` 的时候， python 会用一个叫 `PyEval_EvalFramEx` 的 C 语言函数去执行。
+
+在执行之前，会先创建一个栈帧（stackframe），实际上是一个上下文，也是一个对象。
+
+然后，将所有已变成字节码对象的代码，放入栈帧。
+
+> 可使用 dis 包查看字节码。
+
+当上面 foo 调用 bar 的时候，又会创建一个新的栈帧。
+
+所有栈帧都是分配在堆内存上，这就决定了栈帧可以独立于调用者存在。
+
+详细的过程可以看下面的图：
+
+![image.png](https://s2.loli.net/2022/01/14/31jKD8RZPWyOxvd.png)
+
+那么生成器到底是怎么来的呢？它其实就是想 Python 的 frame 做了一个包装。
+其中 `f_lasti` 会指向最近执行的代码，也就是执行到 yield 语句时，程序停下来的地方。
+
+![image.png](https://s2.loli.net/2022/01/14/wxmMjKIOFLk627a.png)
+
+
