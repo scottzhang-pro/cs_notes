@@ -575,6 +575,8 @@ if __name__ == "__main__":
 
 # 迭代器与迭代协议
 
+## 迭代器
+
 将一个list转成迭代器：
 
 ```python
@@ -621,7 +623,7 @@ class MyIterator(Iterator):
         return word
 ```
 
-# 生成器函数
+## 生成器
 
 生成器可以返回*多次*值：
 
@@ -762,3 +764,63 @@ print("     Pass...")
 ```
 
 如果我们拿到了 gen 对象，便可以控制它的运行。
+
+## 应用生成器
+
+生成器在 `collections.UserList` 中就有应用，我们来分析它的代码：
+
+```python
+# 当我们使用 iter(obj) 的时候
+# 会去查 obj 是否有 __iter__ 方法，如果没有则继续查有没有 __getitem__
+iter(obj)
+
+# 分析生成器在 list 中的应用
+# 查看 list 的源码（默认是 c 版本无法查看）
+# 可以查看 collection 中的 UserList, 这是纯 Python 实现的
+# 支持用户的类继承
+from collections import UserList
+
+
+# 通过查看 UserList 的实现，可以发现它的继承关系
+# UserList -> MutableSequence -> Sequence
+# Sequence 实现了 __iter__ 方法，这让它的子类可以被迭代
+
+def __iter__(self):
+    """Sequence 中的 iter 方法"""
+    i = 0
+    try:
+        while True:
+            v = self[i]
+            yield v
+            i += 1
+        except IndexError:
+            return
+```
+
+用生成器读取文件，也是一个非常常用的用法。
+
+假设有一个文件，只有一行，使用 `,` 分割，但是它大小就有 500G，要怎么读取？
+
+```python
+def read_longline_file_ws_gen(f, newline):
+    # buf 缓存
+    buf = ""
+    while True:
+        # 找缓存中是否存在
+        while newline in buf:
+            pos = buf.index(newline)
+            yield buf[:pos]
+            buf = buf[pos + len(newline)]
+            
+        chunk = f.read(4096 * 10)
+        # 边界条件：not chunk, 说明已经读取到了文件结尾
+        if not chunk:
+            yield buf
+            break
+        buf += chunk
+
+if __name__ == '__main__':
+    for line in read_longline_file_ws_gen(f, ","):
+        print(line)
+
+```
