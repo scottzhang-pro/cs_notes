@@ -188,10 +188,9 @@ def get_url(url):
     # 再查看 Headers，具体某个网站必须构造哪些请求内容，各有不同
     # 比如百度必须有: host, connection,
     client.send(
-        "Get {} HTTP/1.1\r\nHost:{}\r\nConnection:close".format(
+        "GET {} HTTP/1.1\r\nHost:{}\r\nConnection:close\r\n\r\n".format(
             path, host
-        ).encode('utf8')
-    )
+    ).encode("utf8"))
 
     # 返回的数据不一定是 1024， 有可能是 > 1024 的
     # client.recv(1024), 这样写会出问题，特殊处理一下
