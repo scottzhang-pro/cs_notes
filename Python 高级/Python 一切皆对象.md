@@ -18,7 +18,7 @@
 
 这就提供了一种动态性，你可以在运行的时候修改它。
 
-对象的三个特征：身份(内存中的地址)、类型（1 是 int 类型）、值（a=1 中的1）。
+> 对象的三个特征：身份(内存中的地址)、类型（1 是 int 类型）、值（a=1 中的1）。
 
 # 以 list 为例
 
@@ -46,6 +46,25 @@ print(x.is_integer())
 # output: builtin_function_or_method
 type(x.is_interger)
 
+```
+
+# 以函数为例
+
+如果你定义了一个函数，你也可以将它赋值给一个新的变量，新的变量将拥有对这个函数的引用。
+
+```python
+def add(x, y):
+    return x + y
+
+# 函数赋值给新的变量
+my_add = add
+my_add(1, 2)
+
+# 函数作为参数返回
+def add_number_creator(number):
+    def add_number(a):
+        return a+ number
+    return add_number
 ```
 
 # 参考
