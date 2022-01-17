@@ -2,7 +2,7 @@
 
 Python 全局解释器锁或 GIL(Global Interpreter Lock)，简单来说，是一个互斥体（或锁），它只允许一个线程持有 Python 解释器的控制权。
 
-这意味着，在同一时刻，只有一个线程可以执行代码，即便是在拥有多核 CPU 的情况下，这也是 Python 被诟病的一个点。
+这意味着，在同一时刻，只有一个线程可以在 CPU 上可以执行字节码，即便是在拥有多核 CPU 的情况下，这也是 Python 被诟病的一个点。
 
 # GIL 解决了什么问题？
 
@@ -56,7 +56,41 @@ PyObject，也就是所有 Python 对象的爷爷，包含了两个东西:
 
 # GIL 的影响
 
-GIL 让你在同一时刻只能利用到一个线程，所以对于 CPU 密集型程序，使用单线程和多线程，其执行效率是一样的:
+Python 中，如果你使用线程来同时对一个变量进行加减操作，会发现结果是不一样的:
+
+```python
+import threading
+
+total = 0
+
+def add():
+    global total
+    for i in range(1000000):
+        total += 1
+
+def desc():
+    global total
+    for i in range(1000000):
+        total -= 1
+
+
+thread1 = threading.Thread(target=add)
+thread2 = threading.Thread(target=desc)
+
+thread1.start()
+thread2.start()
+
+thread1.join()
+thread2.join()
+
+# 每次的结果都不一样
+# GIL 并不是上面某个函数一直占有，而是在某个函数转化成字节码后
+# 执行一段长度的字节码后，会释放 GIL 码，然后给其他线程执行
+print(total)
+
+```
+
+GIL 让你在同一时刻只能利用到一个线程，对于 CPU 密集型程序，使用单线程和多线程，其执行效率是一样的:
 
 ```python
 # single_threaded.py
