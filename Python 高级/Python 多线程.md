@@ -140,7 +140,51 @@ if __name__ == '__main__':
     print(time.time() - start_time)
 ```
 
+# 使用 ThreadPoolExecutor
+
+```python
+import logging
+import concurrent.futures
+import time
+
+def thread_function(name):
+    """模拟某个函数的执行"""
+    logging.info("Thread %s: starting", name)
+    time.sleep(2)
+    logging.info("Thread %s: finishing", name)
+
+if __name__ == "__main__":
+    format = "%(asctime)s: %(message)s"
+    logging.basicConfig(format=format, level=logging.INFO,
+                        datefmt="%H:%M:%S")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        executor.map(thread_function, ['A thread', 'B thread', 'C thread'])
+
+```
+
+输出如下:
+
+```
+14:36:14: Thread A thread: starting
+14:36:14: Thread B thread: starting
+14:36:14: Thread C thread: starting
+14:36:16: Thread C thread: finishing
+14:36:16: Thread B thread: finishing
+14:36:16: Thread A thread: finishing
+```
+
+# 竞态(Race Conditions)
+
+竞态指的是两个或以上的线程访问或者操作同一个对象，会导致其中一个线程在正常的处理过程中，对象被其他线程修改的情况。
+
+
+
 # 线程间通信
 
 前面提供了两个函数，一个是负责去抓 url，一个是去爬取 url 的内容，那么对于抓到的 url，你需要有一种方式传给爬取内容的函数，这就是线程之间需要通信的例子。
 
+线程中通信有几种方案：
+
+- 使用全局变量
+- 使用 Python 中的队列，即 queue
