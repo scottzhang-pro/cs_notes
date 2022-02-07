@@ -188,3 +188,114 @@ if __name__ == "__main__":
 
 - 使用全局变量
 - 使用 Python 中的队列，即 queue
+
+# 线程同步
+
+在之前关于 GIL 的文章中，有一个多线程加减的例子：
+
+```python
+import threading
+
+total = 0
+
+def add():
+    global total
+    for i in range(1000000):
+        total += 1
+
+def desc():
+    global total
+    for i in range(1000000):
+        total -= 1
+
+
+thread1 = threading.Thread(target=add)
+thread2 = threading.Thread(target=desc)
+
+thread1.start()
+thread2.start()
+
+thread1.join()
+thread2.join()
+
+print(total)
+```
+
+当我们查看上面代码的字节码的时候，可以看到大概的步骤如下：
+
+
+1. 加载 total 到内存
+2. 加载 1
+3. 进行加法操作
+4. 赋值给 total （多线程状态下，赋值会出错）
+
+上述代码，每次的结果都不一样，就是因为在上面4个步骤的任意一个步骤中，GIL 都有可能被释放，然后加载的变量被其他的线程修改了。
+
+这里就引出我们的线程的同步机制，即我们设置一种方法，让某一段代码执行完毕之后，才能切换到别的线程执行，这就保证了在修改数据的时候，不会出错。
+
+同步机制可以使用锁来实现：
+
+```python
+from threading import Lock
+import threading
+
+total = 0
+lock = Lock()
+
+def add():
+    global total
+    global lock
+    for i in range(10000):
+        lock.acquire()
+        total += 1
+        lock.release()
+
+def desc():
+    global total
+    global lock
+    for i in range(10000):
+        lock.acquire()
+        total -= 1
+        lock.release()
+
+thread1 = threading.Thread(target=add)
+thread2 = threading.Thread(target=desc)
+
+thread1.start()
+thread2.start()
+
+print(f"Total is: {total}")
+# Total is: 0，可以看到结果正确了
+```
+
+但是使用锁，也优缺点，第一个是性能上的损失，另外是容易引起死锁。
+
+```python
+# 1. 没有 release 却重新申请导致死锁
+lock.acquire()
+lock.acquire()
+
+# 2. 竞争死锁
+# A 任务需要 a，b，B 任务需要 b，a
+# 那么 A 和 B 互相持有 a，b 容易导致死锁
+
+
+# 3. 子函数死锁
+def do_something(lock):
+    lock.acquire()
+
+lock.acquire()
+do_something(lock)
+```
+
+针对第三种情况，Python 有一种 RLock（可以重复申请的锁）, 可以让你连续申请锁，但是注意，申请和释放的次数要一样。
+
+```python
+from threading import RLock
+
+lock.acquire()
+lock.acquire()
+# pass
+lock.release()
+lock.release()
+```
