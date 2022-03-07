@@ -2,19 +2,19 @@
 
 > The biggest difference is that unsupervised learning does not require explicitly labeled data, while supervised learning does – before you can do a classification, you must label the data to train the model to classify data into the correct groups.
 
-1. **What are the different types of machine learning?**
+#### 1. What are the different types of machine learning?
 
 - 监督学习；通过大量带有标记的数据来训练机器，机器将预测结果与期望结果进行比对；之后根据比对结果来修改模型中的参数，再一次输出预测结果；然后将预测结果与期望结果进行比对，重复多次直至收敛，最终生成具有一定鲁棒性的模型来达到智能决策的能力。
 - 无监督学习；机器从无标记的数据中探索并推断出潜在的联系。常见的有聚类和降维。
 - 强化学习；一种对机器的行为带有激励机制的学习，具体来说，如果机器行动正确，将施予一定的“正激励”；如果行动错误，同样会给出一个惩罚。
 - 深度学习；建立人工的神经网络，通过不断组合低层特征，形成更加抽象的高层属性类别或特征；应用：计算机视觉，语音识别，自然语言处理等。
 
-2. **What is deep learning, and how does it contrast with other machine learning algorithms?**
+#### 2. What is deep learning, and how does it contrast with other machine learning algorithms?
 
 Deep Learning 是一种特殊的机器学习，其中深度的意思是很多连续的层，一个模型的深度也就是表示这个模型有多少层。
 
 
-3. **What are the differences between machine learning and deep learning?**
+#### 3. What are the differences between machine learning and deep learning?
 
 - Deep learning 机器学习的分支.
 - 算法学习方式不一样，需要的数据量不一样
@@ -24,18 +24,18 @@ Deep Learning 是一种特殊的机器学习，其中深度的意思是很多连
 
 
 
-4. **Explain the confusion matrix with respect to machine learning algorithms.**
+#### 4. Explain the confusion matrix with respect to machine learning algorithms.
 
 Confusion Matrix这个概念告诉我们，机器学习的算法预测的结果中，正确了多少、错了多少以及正确的分布在哪里，错的又分布在哪里。
 
 通过这个模型，我们可以来衡量不同模型的效果，选择一个最好的模型。
 
-5. **What is the difference between artificial intelligence and machine learning?**
+#### 5. What is the difference between artificial intelligence and machine learning?
 
 AI is a bigger concept to create intelligent machines that can simulate human thinking capability and behavior, whereas, machine learning is an application or subset of AI that allows machines to learn from data without being programmed explicitly.
 
 
-6. **What’s the trade-off between bias and variance?**
+#### 6. What’s the trade-off between bias and variance?
 
 bias高，可以理解为反应慢，但很稳。而Variance高，则意味反应很灵敏，发挥可能有时候很好，有时候很差。
 
@@ -46,7 +46,7 @@ bias高，可以理解为反应慢，但很稳。而Variance高，则意味反�
 理想的模型是variance和bias都比较低，能准确的反映数据的分布关系，以及做出稳定的预测。
 
 
-7. **Explain the difference between L1 and L2 regularization.**
+#### 7. Explain the difference between L1 and L2 regularization.
 
 L1 Regularization, also called a lasso regression, adds the “absolute value of magnitude” of the coefficient as a penalty term to the loss function.
 
@@ -62,42 +62,42 @@ ridge regression就是一个加强版的OLS loss function，它多了一个阿�
 对于ridge regression的使用，它多了个alpha参数。另外对于不同参数，我们需要将它 归一化，所以在初始化ridge实例的时候，需要指定 normalize=true.
 
 
-8. **What’s your favorite algorithm, and can you explain it to me in less than a minute?**
+#### 8. What’s your favorite algorithm, and can you explain it to me in less than a minute?
 
 KNN. 它是广为使用的一种机器学习算法，理论上比较成熟的方法，也是最简单的机器学习算法。当时我拿 jira 的 ticket 训练处理 ticket 请求的分类问题。
 
 
-9. **How is KNN different from k-means clustering?**
+#### 9. How is KNN different from k-means clustering?
 
 KNN represents a supervised classification algorithm that will give new data points accordingly to the k number or the closest data points,
 
 while k-means clustering is an unsupervised clustering algorithm that gathers and groups data into k number of clusters.
 
-10. **What is cross validation and what are different methods of using it?**
+#### 10. What is cross validation and what are different methods of using it?
 
 Cross Validation 可以让我们大概知道哪些模型会fit比较好，哪些模型在实际应用的时候表现会更好. 逐一将所有的数据都测试一遍，然后汇总结果。这样每一组数据都作为测试数据参与过模型训练，也参与过模型的检测。逐一测试后，再汇总所有结果，我们就可以选择最适合数据的模型。
 
-11. **Explain how a ROC curve works.**
+#### 11. Explain how a ROC curve works.
 
 - Sensitivity， 所有肥胖的老鼠中，多少预测对了；
 - Specificity，所有没有肥胖的老鼠中，多少预测对了；
 - ROC，Sensitivity X轴、Specificity Y 轴;
 
-12. **What’s the difference between probability and likelihood?**
+#### 12. What’s the difference between probability and likelihood?
 
 - Probabiity（概率）：给定某一参数值，求某一结果的可能性
 
 - Likelihood（似然）：给定某一结果，求某一参数值的可能性
 
 
-13. **What’s the difference between a generative and discriminative model?**
+#### 13. What’s the difference between a generative and discriminative model?
 
 判别式模型举例：要确定一个羊是山羊还是绵羊，用判别模型的方法是从历史数据中学习到模型，然后通过提取这只羊的特征来预测出这只羊是山羊的概率，是绵羊的概率。生成式模型举例：利用生成模型是根据山羊的特征首先学习出一个山羊的模型，然后根据绵羊的特征学习出一个绵羊的模型，然后从这只羊中提取特征，放到山羊模型中看概率是多少，在放到绵羊模型中看概率是多少，哪个大就是哪个。
 
 链接：https://www.zhihu.com/question/20446337/answer/256466823
 
 
-14. **How is a decision tree pruned?**
+#### 14. How is a decision tree pruned?
 
 当训练数据量大、特征数量较多时构建的决策树可能很庞大，这样的决策树用来分类是否好？答案是否定的。
 
@@ -114,7 +114,7 @@ Cross Validation 可以让我们大概知道哪些模型会fit比较好，哪些
 
 [参考](https://cloud.tencent.com/developer/article/1558404)
 
-15. **How can you choose a classifier based on a training set size?**
+#### 15. How can you choose a classifier based on a training set size?
 
 首先搞清楚 bias 和 variance 两个概念：
 
@@ -125,40 +125,40 @@ If the training set is small, high bias / low variance models (e.g. Naive Bayes)
 
 If the training set is large, low bias / high variance models (e.g. Logistic Regression) tend to perform better because they can reflect more complex relationships.
 
-16. **What methods for dimensionality reduction do you know and how do they compare with each other?**
+#### 16. What methods for dimensionality reduction do you know and how do they compare with each other?
 
 参考：[12种降维方法终极指南（含Python代码）](https://zhuanlan.zhihu.com/p/43225794)
 
-17. **Define precision and recall.**
+#### 17. Define precision and recall.
 
 假设一共有10篇文章，里面4篇是你要找的。根据你某个算法，你认为其中有5篇是你要找的，但是实际上在这5篇里面，只有3篇是真正你要找的。那么你的这个算法的precision是3/5=60%，也就是，你找的这5篇，有3篇是真正对的这个算法的recall是3/4=75%，也就是，一共有用的这4篇里面，你找到了其中三篇。
 
 链接：https://www.zhihu.com/question/19645541/answer/12502751
 
 
-18. **What’s a Fourier transform?**
+#### 18. What’s a Fourier transform?
 
 一种将原来空间中难以处理的问题变换到方便计算的空间中去，比如在修图技术中，将 RGB 信息做变换；在音频处理中，将低频或者高频等部分分离出来。
 
-19. **What’s the difference between Type I and Type II error?**
+#### 19. What’s the difference between Type I and Type II error?
 
 (Type I error)，原假设是正确的，而你判断它为错误的；
 (Type II error)，原假设是错误的，而你判断它为正确的。 我们分别称这两种错误为第一类错误和第二类错误 。
 
 
-20. **When should you use classification over regression?**
+#### 20. When should you use classification over regression?
 
 
 
-21. **How would you evaluate a logistic regression model?**
+#### 21. How would you evaluate a logistic regression model?
 
 
 
-22. **What is Bayes’ Theorem? How is it useful in a machine learning context?**
+#### 22. What is Bayes’ Theorem? How is it useful in a machine learning context?
 
 
 
-23. **Describe a hash table.**
+#### 23. Describe a hash table.
 
 
 ## Technical Skills Questions
@@ -166,126 +166,126 @@ If the training set is large, low bias / high variance models (e.g. Logistic Reg
 > The company will want to make sure you have the hard skills needed to excel in the Machine Learning Engineer position. For technical questions, remember that interviewers are usually more interested in your thought process than the final solution.
 
 
-24. **How would you handle an imbalanced dataset?**
+#### 24. How would you handle an imbalanced dataset?
 
 
 
-25. **How do you handle missing or corrupted data in a dataset?**
+#### 25. How do you handle missing or corrupted data in a dataset?
 
 
 
-26. **Do you have experience with Spark or big data tools for machine learning?**
+#### 26. Do you have experience with Spark or big data tools for machine learning?
 
 
 
-27. **Pick an algorithm. Write the pseudo-code for a parallel implementation.**
+#### 27. Pick an algorithm. Write the pseudo-code for a parallel implementation.
 
 
 
-28. **Which data visualization libraries do you use? What are your thoughts on the best data visualization tools?**
+#### 28. Which data visualization libraries do you use? What are your thoughts on the best data visualization tools?
 
 
 
-29. **Given two strings, A and B, of the same length n, find whether it is possible to cut both strings at a common point such that the first part of A and the second part of B form a palindrome.**
+#### 29. Given two strings, A and B, of the same length n, find whether it is possible to cut both strings at a common point such that the first part of A and the second part of B form a palindrome.
 
 
 
-30. **How would you build a data pipeline?**
+#### 30. How would you build a data pipeline?
 
 
 
-31. **How would you implement a recommendation system for our company’s users?**
+#### 31. How would you implement a recommendation system for our company’s users?
 
 
 
-32. **Can you explain your approach to optimizing auto-tagging?**
+#### 32. Can you explain your approach to optimizing auto-tagging?
 
 
 
-33. **Suppose you are given a data set that has missing values spread along 1 standard deviation from the median. What percentage of data would remain unaffected and why?**
+#### 33. Suppose you are given a data set that has missing values spread along 1 standard deviation from the median. What percentage of data would remain unaffected and why?
 
 
 
-34. **Suppose you found that your model is suffering from low bias and high variance. Which algorithm do you think could tackle this situation and why?**
+#### 34. Suppose you found that your model is suffering from low bias and high variance. Which algorithm do you think could tackle this situation and why?
 
 
 
-35. **You are given a data set. The data set contains many variables, some of which are highly correlated and you know about it. Your manager has asked you to run PCA.**
+#### 35. You are given a data set. The data set contains many variables, some of which are highly correlated and you know about it. Your manager has asked you to run PCA.
 
 
 
-36. **Would you remove correlated variables first? Why?**
+#### 36. Would you remove correlated variables first? Why?
 
 
 
-37. **What are the advantages and disadvantages of neural networks?**
+#### 37. What are the advantages and disadvantages of neural networks?
 
 
 
-38. **How would you go about understanding the sorts of mistakes an algorithm makes?**
+#### 38. How would you go about understanding the sorts of mistakes an algorithm makes?
 
 
 
-39. **Explain the steps involved in making decision trees.**
+#### 39. Explain the steps involved in making decision trees.
 
 
 ## Personal Questions
 
 > In addition to your experience in machine learning, employers are looking for candidates with passion, enthusiasm, and the right personality. Personal questions help interviewers get to know more about you, your work style, and your interests.
 
-40. **How do you keep informed of developments in machine learning?**
+#### 40. How do you keep informed of developments in machine learning?
 
 
 
-41. **How do you think quantum computing will affect machine learning?**
+#### 41. How do you think quantum computing will affect machine learning?
 
 
 
-42. **Is machine learning a science or an art?**
+#### 42. Is machine learning a science or an art?
 
 
 
-43. **What are you passionate about?**
+#### 43. What are you passionate about?
 
 
 
-44. **How do you handle stress and pressure?**
+#### 44. How do you handle stress and pressure?
 
 
 
-45. **What makes you unique?**
+#### 45. What makes you unique?
 
 
 
-46. **What motivates you?**
+#### 46. What motivates you?
 
 
 
-47. **Tell me about yourself.**
+#### 47. Tell me about yourself.
 
 
 
-48. **How would you describe yourself?**
+#### 48. How would you describe yourself?
 
 
 
-49. **How do you evaluate success?**
+#### 49. How do you evaluate success?
 
 
 
-50. **What is your greatest weakness?**
+#### 50. What is your greatest weakness?
 
 
 
-51. **What is your greatest strength?**
+#### 51. What is your greatest strength?
 
 
 
-52. **Describe your work ethic.**
+#### 52. Describe your work ethic.
 
 
 
-53. **Why do you want to work here?**
+#### 53. Why do you want to work here?
 
 
 ## Leadership and Communication
@@ -294,51 +294,51 @@ If the training set is large, low bias / high variance models (e.g. Logistic Reg
 
 
 
-54. **Tell me about a time when you had to convince others to take your position on a specific matter. What was the outcome?**
+#### 54. Tell me about a time when you had to convince others to take your position on a specific matter. What was the outcome?
 
 
 
-55. **How do you make sure projects and tasks stay on schedule?**
+#### 55. How do you make sure projects and tasks stay on schedule?
 
 
 
-56. **How do you handle disagreements on your team?**
+#### 56. How do you handle disagreements on your team?
 
 
 
-57. **Tell me about a time when something went wrong at work and you took control.**
+#### 57. Tell me about a time when something went wrong at work and you took control.
 
 
 
-58. **How do you deal with people who disagree with you?**
+#### 58. How do you deal with people who disagree with you?
 
 
 
-59. **How would you go about simplifying a complex issue in order to explain it to a client or colleague?**
+#### 59. How would you go about simplifying a complex issue in order to explain it to a client or colleague?
 
 
 
-60. **How would you go about persuading someone to see things your way at work?**
+#### 60. How would you go about persuading someone to see things your way at work?
 
 
 
-61. **How would you go about explaining a complex idea/problem to a client who was already frustrated?**
+#### 61. How would you go about explaining a complex idea/problem to a client who was already frustrated?
 
 
 
-62. **What would you do if there was a breakdown in communication at work?**
+#### 62. What would you do if there was a breakdown in communication at work?
 
 
 
-63. **Talk about a successful presentation you gave and why you think it did well.**
+#### 63. Talk about a successful presentation you gave and why you think it did well.
 
 
 
-64. **Talk about a time when you made a point that you knew your colleagues would be resistant to.**
+#### 64. Talk about a time when you made a point that you knew your colleagues would be resistant to.
 
 
 
-65. **Is it more important to be a good listener or a good communicator?**
+#### 65. Is it more important to be a good listener or a good communicator?
 
 
 ## Behavioral
@@ -346,51 +346,51 @@ If the training set is large, low bias / high variance models (e.g. Logistic Reg
 > To successfully answer a behavioral question, start by outlining the situation, then explain your responsibilities, describe the steps you took, and, finally, share the outcomes of your actions. Examples of behavioral interview questions include:
 
 
-66. **Give me an example of how you’ve used your data analysis to change behavior. What was the impact, and what would you do differently in retrospect?**
+#### 66. Give me an example of how you’ve used your data analysis to change behavior. What was the impact, and what would you do differently in retrospect?
 
 
 
-67. **Give an example of a problem you solved (or tried to solve) with machine learning.**
+#### 67. Give an example of a problem you solved (or tried to solve) with machine learning.
 
 
 
-68. **Tell me about a time when you had to think outside the box to complete a task. Were you successful?**
+#### 68. Tell me about a time when you had to think outside the box to complete a task. Were you successful?
 
 
 
-69. **Can you describe a time when you had to develop a complex algorithm?**
+#### 69. Can you describe a time when you had to develop a complex algorithm?
 
 
 
-70. **Can you tell me about a major success you had with a machine learning project?**
+#### 70. Can you tell me about a major success you had with a machine learning project?
 
 
 
-71. **What’s the most difficult decision you’ve had to make recently and how did you come to that decision?**
+#### 71. What’s the most difficult decision you’ve had to make recently and how did you come to that decision?
 
 
 
-72. **Tell me about a time you were under a lot of pressure. What was going on, and how did you get through it?**
+#### 72. Tell me about a time you were under a lot of pressure. What was going on, and how did you get through it?
 
 
 
-73. **Tell me about a time you had a conflict at work.**
+#### 73. Tell me about a time you had a conflict at work.
 
 
 
-74. **Give an example of when you made a mistake at work.**
+#### 74. Give an example of when you made a mistake at work.
 
 
 
-75. **Describe a time when you disagreed with a client. How did you handle it?**
+#### 75. Describe a time when you disagreed with a client. How did you handle it?
 
 
 
-76. **Tell me about a time you set a goal for yourself. How did you go about ensuring that you would meet your objective?**
+#### 76. Tell me about a time you set a goal for yourself. How did you go about ensuring that you would meet your objective?
 
 
 
-77. **Describe a time when you saw a problem and took the initiative to correct it rather than waiting for someone else to do it.**
+#### 77. Describe a time when you saw a problem and took the initiative to correct it rather than waiting for someone else to do it.
 
 
 ## Questions From Top Companies
@@ -398,66 +398,66 @@ If the training set is large, low bias / high variance models (e.g. Logistic Reg
 > Wondering what top tech companies are looking for in Machine Learning Engineers? Here are a few interview questions from Amazon, Google, Facebook, and Microsoft.
 
 
-78. **What are the differences between generative and discriminative models?**
+#### 78. What are the differences between generative and discriminative models?
 
 
 
-79. **How would you weigh nine marbles three times on a balance scale to select the heaviest one?**
+#### 79. How would you weigh nine marbles three times on a balance scale to select the heaviest one?
 
 
 
-80. **What’s the difference between MLE and MAP inference?**
+#### 80. What’s the difference between MLE and MAP inference?
 
 
 
-81. **Why did you use this particular machine learning algorithm in your project?**
+#### 81. Why did you use this particular machine learning algorithm in your project?
 
 
 
-82. **What is K-means algorithm?**
+#### 82. What is K-means algorithm?
 
 
 
-83. **Describe a time when you let go of a short-term goal for a long-term goal.**
+#### 83. Describe a time when you let go of a short-term goal for a long-term goal.
 
 
 
-84. **What’s the difference between the summaries of a Logistic Regression and SVM?**
+#### 84. What’s the difference between the summaries of a Logistic Regression and SVM?
 
 
 
-85. **Explain ICA and CCA. How do you get a CCA objective function from PCA?**
+#### 85. Explain ICA and CCA. How do you get a CCA objective function from PCA?
 
 
 
-86. **What is the relationship between PCA with a polynomial kernel and a single layer autoencoder? What if it is a deep autoencoder?**
+#### 86. What is the relationship between PCA with a polynomial kernel and a single layer autoencoder? What if it is a deep autoencoder?
 
 
 
-87. **What is A/B testing in machine learning?**
+#### 87. What is A/B testing in machine learning?
 
 
 
-88. **What is activation function in machine learning?**
+#### 88. What is activation function in machine learning?
 
 
 
-89. **How would you build, train and deploy a system to detect if multimedia and/or ad content being posted violated terms or contained offensive materials?**
+#### 89. How would you build, train and deploy a system to detect if multimedia and/or ad content being posted violated terms or contained offensive materials?
 
 
 
-90. **How do you solve a disagreement with a team member?**
+#### 90. How do you solve a disagreement with a team member?
 
 
 
-91. **What is the bias-variance tradeoff? How is it expressed using an equation?**
+#### 91. What is the bias-variance tradeoff? How is it expressed using an equation?
 
 
 
-92. **Describe the idea behind boosting. Give an example of one method and describe one advantage and disadvantage.**
+#### 92. Describe the idea behind boosting. Give an example of one method and describe one advantage and disadvantage.
 
 
 
-93. **Formulate the background behind an SVM, and show the optimization problem it aims to solve.**
+#### 93. Formulate the background behind an SVM, and show the optimization problem it aims to solve.
 
 
