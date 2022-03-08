@@ -148,18 +148,28 @@ If the training set is large, low bias / high variance models (e.g. Logistic Reg
 
 #### 20. When should you use classification over regression?
 
+Classification is about identifying group membership while regression technique involves predicting a response.
+
+ Both techniques are related to prediction, where classification predicts the belonging to a class whereas regression predicts the value from a continuous set.
+
+ Classification technique is preferred over regression when the results of the model need to return the belongingness of data points in a dataset to specific explicit categories. (For instance, when you want to find out whether a name is male or female instead of just finding it how correlated they are with male and female names.
 
 
 #### 21. How would you evaluate a logistic regression model?
 
+如果利用逻辑回归来解决分类问题，那么可以使用 AUC, Confusion Matrix.
+如果利用它解决线性回归问题（比如想知道各种变量之间的关系）那么可以查看 odds ratios 和 standard errors，或者是R方。
 
+没有一种完美的方法，因为这还取决于模型的假设。
 
 #### 22. What is Bayes’ Theorem? How is it useful in a machine learning context?
 
+用来计算某一事件(E)已经发生(例如在测试中被诊断为阳性)时假设(H)为真的概率。
 
 
 #### 23. Describe a hash table.
 
+哈希表，通过键来访问值的一种数据结构，从键到值得这种关系成为映射关系，哈希函数可能会发生碰撞，这时候需要通过链表来解决。
 
 ## Technical Skills Questions
 
@@ -168,66 +178,105 @@ If the training set is large, low bias / high variance models (e.g. Logistic Reg
 
 #### 24. How would you handle an imbalanced dataset?
 
+1. 使用正确的模型衡量标准，比如 AUC，F1 Score 等来查看模型是否可以 apply.
+2. 对数据重采样。欠采样，针对数据特征比较丰富；重采样：针对数据质量比较差的情况
+3. 使用 k-fold cross-validation
+4. 继承不同的重采样数据
+5. 按照不同比例重采样
+
 
 
 #### 25. How do you handle missing or corrupted data in a dataset?
 
-
+1. 如果这些值随机出现，或者移除后对整体的体量没有什么影响，直接删除相关的列与行
+2. 将缺失的值填充成聚合后的值
+3. 创建一个 unknow 的组，将这些值放进去
+4. 预测这些缺失的值
 
 #### 26. Do you have experience with Spark or big data tools for machine learning?
 
-
+有，使用 Spark 来处理大的数据集。
 
 #### 27. Pick an algorithm. Write the pseudo-code for a parallel implementation.
 
-
+省略。
 
 #### 28. Which data visualization libraries do you use? What are your thoughts on the best data visualization tools?
 
+画图：
 
+- Plotly.
+- seaborn
+
+web:
+- Dash
+- Streamlit
+- Metabase
 
 #### 29. Given two strings, A and B, of the same length n, find whether it is possible to cut both strings at a common point such that the first part of A and the second part of B form a palindrome.
 
-
+省略。
 
 #### 30. How would you build a data pipeline?
 
+定义 data pipline, An ETL pipeline is the sequence of processes that move data from a source (or several sources) into a database, such as a data warehouse. 
+
+- 部署 pip line 工具，比如 airflow 和 Luigi
+- 直接使用 pandas 手写
 
 
 #### 31. How would you implement a recommendation system for our company’s users?
 
+推荐系统的分类，有三种：
 
+1. 基于人口的统计学推荐(Demographic-based
+2. 基于内容的推荐(Content-based Recommendation)，根据物品或内容的元数据，发现物品或内容的相关性，然后基于用户以前的喜好记录推荐给用户相似的物品。
+3. 基于协同过滤的推荐(Collaborative Filtering-based Recommendation)
+
+[参考](https://www.zhihu.com/question/19971859)
 
 #### 32. Can you explain your approach to optimizing auto-tagging?
 
-
+省略。
 
 #### 33. Suppose you are given a data set that has missing values spread along 1 standard deviation from the median. What percentage of data would remain unaffected and why?
 
-
+省略。
 
 #### 34. Suppose you found that your model is suffering from low bias and high variance. Which algorithm do you think could tackle this situation and why?
 
+- By minimizing the total error
+- Using Bagging and Resampling techniques
+- djusting minor values in algorithms
+- using a proper Machine learning workflow
 
 
-#### 35. You are given a data set. The data set contains many variables, some of which are highly correlated and you know about it. Your manager has asked you to run PCA.
+#### 35. You are given a data set. The data set contains many variables, some of which are highly correlated and you know about it. Your manager has asked you to run PCA. Would you remove correlated variables first? Why?
 
-
-
-#### 36. Would you remove correlated variables first? Why?
-
+参考[Should one remove highly correlated variables before doing PCA?](https://stats.stackexchange.com/questions/50537/should-one-remove-highly-correlated-variables-before-doing-pca)
 
 
 #### 37. What are the advantages and disadvantages of neural networks?
 
+优点:
+- 分类的准确度高；
+- 并行分布处理能力强,分布存储及学习能力强，
+- 对噪声神经有较强的鲁棒性和容错能力，能充分逼近复杂的非线性关系；
+- 具备联想记忆的功能。
 
+缺点:
+
+- 神经网络需要大量的参数，如网络拓扑结构、权值和阈值的初始值；
+- 不能观察之间的学习过程，输出结果难以解释，会影响到结果的可信度和可接受程度；
+- 学习时间过长,甚至可能达不到学习的目的。
 
 #### 38. How would you go about understanding the sorts of mistakes an algorithm makes?
 
-
+省略。
 
 #### 39. Explain the steps involved in making decision trees.
 
+省略。
 
 ## Personal Questions
 
