@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
 # 继承 Tread 类
 
-我们也可以集成 treading.Tread 类实现多线程：
+我们也可以继承 treading.Tread 类实现多线程：
 
 ```python
 class GetDetailHtml(threading.Thread):
@@ -139,46 +139,6 @@ if __name__ == '__main__':
 
     print(time.time() - start_time)
 ```
-
-# 使用 ThreadPoolExecutor
-
-```python
-import logging
-import concurrent.futures
-import time
-
-def thread_function(name):
-    """模拟某个函数的执行"""
-    logging.info("Thread %s: starting", name)
-    time.sleep(2)
-    logging.info("Thread %s: finishing", name)
-
-if __name__ == "__main__":
-    format = "%(asctime)s: %(message)s"
-    logging.basicConfig(format=format, level=logging.INFO,
-                        datefmt="%H:%M:%S")
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-        executor.map(thread_function, ['A thread', 'B thread', 'C thread'])
-
-```
-
-输出如下:
-
-```
-14:36:14: Thread A thread: starting
-14:36:14: Thread B thread: starting
-14:36:14: Thread C thread: starting
-14:36:16: Thread C thread: finishing
-14:36:16: Thread B thread: finishing
-14:36:16: Thread A thread: finishing
-```
-
-# 竞态(Race Conditions)
-
-竞态指的是两个或以上的线程访问或者操作同一个对象，会导致其中一个线程在正常的处理过程中，对象被其他线程修改的情况。
-
-
 
 # 线程间通信
 
@@ -232,6 +192,8 @@ print(total)
 上述代码，每次的结果都不一样，就是因为在上面4个步骤的任意一个步骤中，GIL 都有可能被释放，然后加载的变量被其他的线程修改了。
 
 这里就引出我们的线程的同步机制，即我们设置一种方法，让某一段代码执行完毕之后，才能切换到别的线程执行，这就保证了在修改数据的时候，不会出错。
+
+## 锁 Lock
 
 同步机制可以使用锁来实现：
 
@@ -299,3 +261,261 @@ lock.acquire()
 lock.release()
 lock.release()
 ```
+
+## 条件变量 Condition
+
+假设有一个需求是，需要设计一个对话系统，让两个人可以互相对话，即他们说话的顺序需要是交互的。
+
+```python
+import threading
+from threading import Condition
+
+
+class A(threading.Thread):
+    def __init__(self, cond):
+        super().__init__(name='A')
+        self.cond = cond
+    def run(self):
+        # notify 和 wait，必须在 with 语句中
+        with self.cond:
+            print(f"{self.name}, 1") # A先处理自己的逻辑
+            self.cond.notify()       # 通知调用 wait 的方法启动
+            self.cond.wait()         # 等待某个变量的通知
+
+            print(f"{self.name}, 3")
+            self.cond.notify()
+            self.cond.wait()
+
+
+class B(threading.Thread):
+    def __init__(self, cond):
+        super().__init__(name='B')
+        self.cond = cond
+
+    def run(self):
+        # notify 和 wait，必须在 with 语句中
+        with self.cond:
+            self.cond.wait()        # B顺序在后，所以先等待
+            print(f"{self.name} 2") # B再处理自己的逻辑
+            self.cond.notify()      # 再通知 A
+
+            self.cond.wait()
+            print(f"{self.name} 4")
+            self.cond.notify()
+
+
+if __name__ == '__main__':
+    cond = Condition()
+
+    a = A(cond)
+    b = B(cond)
+
+    # 启动顺序很重要，在这里如果 a 启动，那么 a 首先处理自己的代码
+    # 随后发送 notify，但这个时候会出问题，因为 b 还没有启动起来
+    # 所有正确的方式是先让 b 起来等待，再启动 a
+    b.start()
+    a.start()
+
+```
+
+为什么notify 和 wait，必须在 with 语句中呢？condition 内部有两把锁
+
+- 第一底层锁，控制 condition 的进入，即通过 with 或者 cond.acquire()。在这里 B 通过 with 语句进入 condition 内部后，它调用了 wait 方法，wait 内部首先会将底层锁释放，这样 a 才可以通过 wiht 语句进入 condition。
+- 随后，在 wait 方法内，它还会申请一把新的锁放入condition的等待队列（双端队列）中，等待 notify 方法的唤醒
+
+了解了这个原理，上面的问题就很简单了，如果不先通过 with 语句，我们是无法进入到 condition 内部的。
+
+Condition 也有类似锁的申请、释放的模式:
+
+```python
+self.cond.acquire()
+# ...
+self.cond.release()
+```
+
+
+## 信号量 Semaphore
+
+Semaphore 是用于控制进入数量的锁。
+
+比如在文件的操作中，需要控制读写线程的数量。在爬虫的实现中，需要限制请求并发数。
+
+```python
+from calendar import c
+import threading
+import time
+
+class HtmlSpider(threading.Thread):
+    """HTML 爬取模拟器。
+
+    Args:
+        threading (Thread): 继承自线程类，每个 URL 有一个线程处理
+    """
+    def __init__(self, url, sem):
+        super().__init__()
+        self.url = url
+        self.sem = sem
+
+    def run(self):
+        time.sleep(2)
+        print(f"{self.url} finished.")
+        # 处理完成后，释放该锁
+        self.sem.release()
+
+
+class UrlMaker(threading.Thread):
+    def __init__(self, sem):
+        super().__init__()
+        self.sem = sem
+
+    def run(self):
+        # 这里有 100 URL 需要处理，但是同时并发这么多请求会报错
+        # 可以通过 semaphore 限制并发的数量来控制
+        for i in range(100):
+            # 一把 sem 锁，最多进入10个线程
+            self.sem.acquire()
+            html_sider = HtmlSpider(f"http:/scottzhang.pro/{i}", self.sem)
+            html_sider.start()
+
+
+
+if __name__ == '__main__':
+    sem = threading.Semaphore(10)  # 控制并发数量为 10 个
+    url_maker = UrlMaker(sem)
+    url_maker.start()
+```
+
+信号量内部实际上是使用 condition 实现的，而 condition 则是使用 queue 实现的。
+
+
+
+# ThreadPoolExecutor 线程池
+
+## 使用
+线程池也可以实现 semaphore 的功能，即控制线程的数量。
+
+但是线程池可以控制的东西更多，比如它可以获得某个线程的状态与返回值。
+
+当一个线程完成的时候，主线程可以立即知道。
+
+其次，futures 可以让多线程和多进程编码接口一致。
+
+
+```python
+import logging
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
+import time
+
+def thread_function(name):
+    """模拟某个函数的执行"""
+    logging.info("Thread %s: starting", name)
+    time.sleep(2)
+    logging.info("Thread %s: finishing", name)
+
+
+def start_thread_1():
+    logging.info("# Start thread with method 1")
+    executor = ThreadPoolExecutor(max_workers=2)
+    task1 = executor.submit(thread_function, ('A thread'))
+    task2 = executor.submit(thread_function, ('B thread'))
+    task3 = executor.submit(thread_function, ('C thread'))
+    # 查看是否成功，返回结果
+    print(f"Task 1 status: {task1.done()}")
+    # 取消某个任务(还未执行)
+    print(f"Cancel task 3: {task3.cancel()}")
+
+
+def start_thread_2(names):
+    logging.info("# Start thread with method 2")
+    executor = ThreadPoolExecutor(max_workers=2)
+
+    all_tasks = [
+        executor.submit(thread_function, (x)) for x in names
+    ]
+    # 这里会直接进入到 as_completed 逻辑，并不会阻塞
+    # as_completed 会将已经完成的 task yield
+    for future in as_completed(all_tasks):
+        data = future.result()
+
+
+def start_thread_3(names):
+    logging.info("# Start thread with method 3")
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        data = executor.map(thread_function, names)
+
+
+
+if __name__ == "__main__":
+    format = "%(asctime)s: %(message)s"
+    logging.basicConfig(format=format, level=logging.INFO,
+                        datefmt="%H:%M:%S")
+
+    names = ['A thread', 'B thread', 'C thread']
+
+    start_thread_1()
+    start_thread_2(names)
+    start_thread_3(names)
+
+```
+
+输出如下:
+
+```
+15:36:09: # Start thread with method 1
+15:36:09: Thread A thread: starting
+15:36:09: Thread B thread: starting
+Task 1 status: False
+Cancel task 3: True
+15:36:09: # Start thread with method 2
+15:36:09: Thread A thread: starting
+15:36:09: Thread B thread: starting
+15:36:09: Thread C thread: starting
+15:36:11: Thread B thread: finishing
+15:36:11: Thread A thread: finishing
+15:36:11: Thread C thread: finishing
+15:36:11: Thread A thread: finishing
+15:36:11: # Start thread with method 3
+15:36:11: Thread A thread: starting
+15:36:11: Thread B thread: starting
+15:36:11: Thread B thread: finishing
+15:36:13: Thread B thread: finishing
+15:36:13: Thread C thread: starting
+15:36:13: Thread A thread: finishing
+15:36:15: Thread C thread: finishing
+```
+
+另外 `concurrent.futures` 中还有 wait 方法，可以用来阻塞。比如你想指定某个或者某些任务完成才继续:
+
+```python
+from concurrent.futures import wait, FIRST_COMPLETED
+
+executor = ThreadPoolExecutor(max_workers=2)
+all_tasks = [executor.submit(thread_function, (x)) for x in names]
+
+wait(all_task)  # 等所有 task 结束才完成
+wait(all_task, return_when=FIRST_COMPLETED)
+```
+
+## 理解 Future 类
+
+当我们调用时:
+
+```python
+task1 = executor.submit(thread_function, ('A thread'))
+````
+
+task1 是一个 Future 类的实例，这个实例贯穿我们整个多线程的体系中。
+
+因为 Python 为了提供系统的一致性，将多线程、多进程以及协程都采用了一样的设计模式。
+
+仔细想一下，我们的 `thread_function` 函数并没有去访问任何 Future 实例，为什么它却可以拿到
+函数的执行状态呢？
+
+我们看一下 submit 的源码：
+
+![image.png](https://s2.loli.net/2022/05/10/kptihyjHsd4m9lO.png)
+
+其中 f 为 future 类实例；w 为 workitem 实例；workitem 负责了将 future 实例和我们的函数，以及其参数做绑定。
+
+并将 w 放到队列中。
