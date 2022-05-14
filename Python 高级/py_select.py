@@ -9,6 +9,9 @@ from selectors import DefaultSelector, EVENT_READ, EVENT_WRITE
 
 
 # select + 回调 + 事件循环
+# 使用 select，一个线程发出url请求后即可不管，操作系统 select
+# 会自动使用可用的 socket 处理，对比多线程中一个线程对应一个 url
+# 省去了线程切换的开销，以及其占用的内存
 selector = DefaultSelector()
 urls = ["www.baidu.com"]
 stop = False
